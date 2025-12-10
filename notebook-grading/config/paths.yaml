@@ -1,0 +1,34 @@
+# File Paths Configuration
+# All paths used in the grading system are centralized here
+# This enables easy updates and maintenance
+
+reference_solution:
+  path: "/Users/dp/Desktop/TA agent/data/teacher/practical1/code_skeleton_industry_classification_Solution.ipynb"
+  description: "Correct reference implementation for grader's understanding"
+
+student_submissions:
+  base_directory: "/Users/dp/Desktop/TA agent/data/students"
+  folder_pattern: "FDS-25-Txxx"  # where xxx is the team number
+  description: "Student submission folders, each may contain 1-2 .ipynb files"
+
+datasets:
+  location: "/Users/dp/Desktop/TA agent/data/teacher/practical1"
+  test_dataset: "/Users/dp/Desktop/TA agent/data/teacher/practical1/df_test.pkl"
+  description: "All required datasets for training and testing"
+
+grading_outputs:
+  yaml_files_directory: "/Users/dp/Desktop/TA agent/data/teacher/practical1/grading_files"
+  yaml_filename_pattern: "FDS-25-Txxx.yaml"  # one per team
+  f1_scores_file: "/Users/dp/Desktop/TA agent/data/teacher/practical1/f1.txt"
+  description: "Grading results and F1 score records"
+
+# Path replacement patterns for student notebooks
+path_replacements:
+  # Students use various relative paths - all should be replaced with absolute paths
+  target_directory: "/Users/dp/Desktop/TA agent/data/teacher/practical1"
+  common_patterns:
+    - "../data/"
+    - "./data/"
+    - "data/"
+    - "/home/student/"
+  note: "Replace all dataset loading paths with absolute paths to ensure notebooks execute correctly"
