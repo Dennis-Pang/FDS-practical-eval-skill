@@ -4,6 +4,60 @@
 
 This repository contains an AI-powered grading system for Jupyter notebook assignments in machine learning courses. The system has been upgraded from a monolithic prompt-based approach to the **Anthropic Skills framework** for better maintainability, efficiency, and scalability.
 
+## Quick Start
+
+### First-Time Setup
+
+The skill uses configuration files to store paths and team information. You need to set these up before grading:
+
+#### Option 1: Interactive Setup (Recommended)
+```bash
+cd notebook-grading
+python scripts/init_config.py
+```
+
+The wizard will ask you for:
+- Student submission directory path
+- Dataset directory path
+- Grading output directory
+- Team identifiers
+- Folder naming patterns
+
+#### Option 2: Manual Setup
+1. Copy template files:
+   ```bash
+   cd notebook-grading/config
+   cp paths.yaml.template paths.yaml
+   cp teams.yaml.template teams.yaml
+   cp datasets.yaml.template datasets.yaml
+   ```
+
+2. Edit each file and replace `PLACEHOLDER_*` values with your actual paths and team information.
+
+#### Option 3: Claude-Assisted Setup
+If configuration files are missing, Claude will automatically:
+1. Detect missing configuration
+2. Ask you for required information
+3. Create configuration files with your provided values
+
+### Verify Configuration
+```bash
+python scripts/validate_paths.py
+```
+
+This will check that all configured paths exist and are accessible.
+
+### Start Grading
+```
+User: "Please grade Team 004 using the notebook-grading skill"
+
+Claude will:
+1. Load configuration from config/*.yaml
+2. Spawn sub-agent for Team 004
+3. Grade the assignment
+4. Save results to configured output directory
+```
+
 ## Repository Structure
 
 ```
@@ -43,10 +97,12 @@ FDS-practical-1/
 ### After (notebook-grading/)
 - **Structured skill** following Anthropic's Skills framework
 - **Progressive disclosure**: Load only what's needed
-- **Centralized resources**: Paths, teams, datasets in config files
+- **Centralized resources**: Paths, teams, datasets in config files (not hardcoded)
+- **Dynamic configuration**: Claude asks for missing information and writes config files
 - **Modular documentation**: Task-specific reference files
 - **Reusable templates**: YAML and testing templates
 - **~70% reduction** in main skill file size (~150 lines)
+- **Portable**: Works across different environments by adapting configuration
 
 ## Key Design Principles Applied
 
@@ -77,21 +133,46 @@ Like a well-organized manual:
 
 ### For Claude Code Agent
 
-When grading assignments, Claude should:
+When grading assignments, Claude will:
 
-1. **Activate the skill** by referencing `notebook-grading/SKILL.md`
-2. **Spawn sub-agents** for each team (as specified in SKILL.md)
-3. **Progressive loading**: Sub-agents load only relevant reference files
-4. **Follow workflow**: Fix paths → Evaluate tasks → Record results
+1. **Check configuration**: Verify `config/*.yaml` files exist and are populated
+2. **Ask for configuration if missing**: Prompt user for paths and team information
+3. **Load configuration**: Read paths and team list from config files
+4. **Spawn sub-agents**: Create isolated grading environment for each team
+5. **Progressive loading**: Sub-agents load only relevant reference files as needed
+6. **Follow workflow**: Fix paths → Evaluate tasks → Record results
 
 ### For Human Graders
 
-To use this system:
+#### Initial Setup (One-Time)
+```bash
+# Run interactive configuration wizard
+cd notebook-grading
+python scripts/init_config.py
 
-1. **Prepare environment**: Ensure all paths in `config/paths.yaml` are correct
-2. **Update team list**: Modify `config/teams.yaml` if team numbers change
-3. **Invoke Claude**: Ask Claude to grade teams using the notebook-grading skill
-4. **Review results**: Check YAML files and f1.txt for grading outcomes
+# Or manually edit config/*.yaml files
+```
+
+#### Grading Workflow
+```bash
+# Verify configuration
+python scripts/validate_paths.py
+
+# Start grading (via Claude)
+# "Grade Team 004 using the notebook-grading skill"
+```
+
+#### Updating Configuration
+```bash
+# Update team list
+vim config/teams.yaml
+
+# Update paths
+vim config/paths.yaml
+
+# Verify changes
+python scripts/validate_paths.py
+```
 
 ## Assignment Structure
 
@@ -129,26 +210,61 @@ All grading results are recorded in standardized YAML format with:
 
 ## Configuration Management
 
-### Updating File Paths
+### Initial Configuration
+
+**Recommended: Use the interactive wizard**
+```bash
+python notebook-grading/scripts/init_config.py
+```
+
+The wizard will:
+1. Ask for all required paths and information
+2. Validate your inputs
+3. Generate properly formatted config files
+4. Create necessary directories
+
+### Updating Configuration
+
+#### Update File Paths
 Edit `notebook-grading/config/paths.yaml`:
 ```yaml
 student_submissions:
   base_directory: "/path/to/students"
 datasets:
   location: "/path/to/datasets"
+grading_outputs:
+  yaml_files_directory: "/path/to/grading/files"
+  f1_scores_file: "/path/to/f1.txt"
 ```
 
-### Updating Team List
+#### Update Team List
 Edit `notebook-grading/config/teams.yaml`:
 ```yaml
 teams:
   - "004"
   - "011"
+  - "018"
   # ... add more teams
+folder_prefix: "FDS-25-T"
+folder_pattern: "FDS-25-Txxx"
 ```
 
-### Updating Error Keys
+#### Update Error Keys
 Edit `notebook-grading/references/error_keys.md` to modify grading rubrics.
+
+#### Verify Configuration
+```bash
+python notebook-grading/scripts/validate_paths.py
+```
+
+### Configuration Files
+
+| File | Purpose | When to Update |
+|------|---------|----------------|
+| `config/paths.yaml` | File paths for all directories | When directory structure changes |
+| `config/teams.yaml` | List of teams to grade | Each semester/assignment |
+| `config/datasets.yaml` | Dataset metadata | When datasets change |
+| `*.yaml.template` | Templates for new setups | Never (these are templates) |
 
 ## Benefits of Skills-Based Architecture
 
@@ -198,21 +314,58 @@ Read SKILL.md (150 lines) → Spawn sub-agent → Sub-agent loads only relevant 
 
 ## Example Usage
 
+### Scenario 1: First-Time User
+
+```
+User: Grade Team 004 using the notebook-grading skill
+
+Claude: I need to check the configuration first.
+[Checks config/*.yaml files]
+
+Claude: Configuration files are missing. I need some information to set up:
+
+        1. Where are student notebook folders located?
+        2. Where are the datasets located?
+        3. Where should grading results be saved?
+        4. What are the team identifiers?
+
+User: [Provides the information]
+
+Claude: Thank you! I'll create the configuration files.
+[Writes config/paths.yaml, config/teams.yaml, config/datasets.yaml]
+
+Claude: Configuration complete. Now grading Team 004...
+[Spawns sub-agent and proceeds with grading]
+
+Sub-agent:
+1. Loads config/paths.yaml for file locations
+2. Loads config/teams.yaml to verify Team 004
+3. Finds Team 004's notebook in configured directory
+4. Loads references/error_keys.md for grading rubric
+5. Grades notebook following workflow
+6. Saves results to configured YAML directory
+
+Claude: ✓ Team 004 grading complete. Results saved to [configured path]/FDS-25-T004.yaml
+```
+
+### Scenario 2: Configured System
+
 ```
 User: Grade Team 004
 
-Claude: I'll use the notebook-grading skill to grade Team 004.
-[Spawns sub-agent with team number and skill references]
+Claude: Loading configuration from config/*.yaml
+[Configuration found and loaded]
 
-Sub-agent:
-1. Reads SKILL.md for overview
-2. Loads config/paths.yaml for file locations
-3. Loads references/error_keys.md for grading rubric
-4. Loads task-specific references as needed
-5. Grades notebook following workflow
-6. Records results in YAML and f1.txt
+Claude: Grading Team 004...
+[Spawns sub-agent]
 
-Claude: Team 004 grading complete. Results saved to FDS25-T004.yaml
+Sub-agent: [Proceeds directly with grading]
+
+Claude: ✓ Team 004 complete.
+        - Task 1: 1_task_1_ok
+        - Task 2: 2_task_2_ok
+        - Task 3: 3_task_3_ok
+        - Task 4: 4_task_4_ok (F1: 0.8234)
 ```
 
 ## Design Inspirations

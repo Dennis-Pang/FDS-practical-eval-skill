@@ -1,0 +1,20 @@
+# Team Configuration Template
+# This is a template - replace with actual team identifiers
+# Run `python scripts/init_config.py` for interactive setup
+
+teams: []  # Add team identifiers, e.g., ["004", "011", "018"]
+
+# Team folder naming convention
+folder_prefix: "PLACEHOLDER_FOLDER_PREFIX"  # e.g., "FDS-25-T"
+folder_pattern: "PLACEHOLDER_FOLDER_PATTERN"  # e.g., "FDS-25-Txxx" where xxx is team number
+
+# Submission notes
+submission_notes:
+  - "Each team folder may contain 1-2 .ipynb files"
+  - "Submission formats vary between teams"
+  - "Some teams split their work across 2 notebooks"
+  - "All notebooks should contain similar task content"
+  - "Grade ONLY .ipynb files"
+
+# Configuration status
+configured: false  # Set to true after completing configuration

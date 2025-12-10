@@ -1,0 +1,29 @@
+# Dataset Configuration Template
+# This is a template - replace with actual dataset information
+# Run `python scripts/init_config.py` for interactive setup
+
+datasets:
+  training:
+    location: "PLACEHOLDER_TRAINING_DATASETS_DIRECTORY"
+    description: "Training datasets used by students in their notebooks"
+    note: "Students load these datasets with various relative paths that need to be fixed"
+
+  testing:
+    file_path: "PLACEHOLDER_TEST_DATASET_PATH"  # e.g., "/path/to/df_test.pkl"
+    format: "pickle"
+    description: "Test dataset for evaluating Task 4 (Optional Advanced Task)"
+    usage: "Students did NOT use this during training - graders must load and apply student's pipeline"
+    load_command: "pd.read_pickle('PLACEHOLDER_TEST_DATASET_PATH')"
+
+# Dataset path fixing requirements
+path_fixing:
+  required: true
+  priority: "CRITICAL - must be done BEFORE executing any student code"
+  steps:
+    - "Search for dataset loading statements in student notebooks"
+    - "Replace their paths with absolute paths to dataset location"
+    - "Match dataset filenames exactly (case-sensitive)"
+    - "DO NOT modify any other code"
+
+# Configuration status
+configured: false  # Set to true after completing configuration

@@ -1,7 +1,7 @@
 ---
 name: notebook-grading
 description: Grade Jupyter notebook assignments for machine learning courses. Evaluates label encoding, EDA/PCA, model training, and optional test evaluation. Uses sub-agents for parallel processing and progressive disclosure for efficient context management.
-version: 1.0
+version: 2.0
 ---
 
 # Teaching Assistant Agent - Notebook Grading Skill
@@ -16,6 +16,81 @@ You are a TA agent responsible for grading student Jupyter notebook assignments 
 - Evaluating student implementations against task requirements (NOT exact reference matching)
 - Managing repetitive grading workflows across multiple teams
 - Recording structured grading results in YAML format
+
+## Prerequisites Check
+
+**BEFORE starting grading, you MUST verify configuration files exist and are populated.**
+
+### Required Configuration Files
+
+1. **`config/paths.yaml`** - File paths for submissions, datasets, outputs
+2. **`config/teams.yaml`** - List of team identifiers to grade
+3. **`config/datasets.yaml`** - Dataset locations and metadata
+
+### Configuration Initialization
+
+If any configuration file is missing or contains placeholder values, follow this process:
+
+#### Step 1: Check Configuration Files
+```bash
+# Check if config files exist and are populated
+ls -la notebook-grading/config/
+cat notebook-grading/config/paths.yaml
+cat notebook-grading/config/teams.yaml
+```
+
+#### Step 2: If Configuration is Missing or Empty
+**STOP and ask the user for the following information:**
+
+**Required Information:**
+1. **Student submission directory path**
+   - Where are student notebook folders located?
+   - Example: `/Users/dp/Desktop/TA agent/data/students`
+
+2. **Dataset directory path**
+   - Where are the training datasets located?
+   - Example: `/Users/dp/Desktop/TA agent/data/teacher/practical1`
+
+3. **Test dataset path** (optional)
+   - Where is the test dataset (df_test.pkl)?
+   - If not provided, Task 4 evaluation will be skipped
+
+4. **Grading output directory**
+   - Where should YAML grading files be saved?
+   - Example: `/Users/dp/Desktop/TA agent/data/teacher/practical1/grading_files`
+
+5. **F1 scores file path**
+   - Where should F1 scores be recorded?
+   - Example: `/Users/dp/Desktop/TA agent/data/teacher/practical1/f1.txt`
+
+6. **Team identifiers**
+   - What are the team numbers/identifiers to grade?
+   - Example: `["004", "011", "018", "025"]`
+
+7. **Team folder naming pattern**
+   - What is the folder naming convention?
+   - Example: `FDS-25-Txxx` where xxx is the team identifier
+
+#### Step 3: Write Configuration
+Once user provides the information, write it to the config files using the templates in `config/`.
+
+**Example:**
+```yaml
+# config/paths.yaml
+student_submissions:
+  base_directory: "[USER_PROVIDED_PATH]"
+  folder_pattern: "[USER_PROVIDED_PATTERN]"
+
+datasets:
+  location: "[USER_PROVIDED_PATH]"
+  test_dataset: "[USER_PROVIDED_PATH]/df_test.pkl"
+
+grading_outputs:
+  yaml_files_directory: "[USER_PROVIDED_PATH]"
+  f1_scores_file: "[USER_PROVIDED_PATH]/f1.txt"
+```
+
+See `scripts/init_config.py` for an interactive configuration setup tool.
 
 ## Assignment Overview
 
@@ -44,14 +119,14 @@ For each team, create a Task with this template:
 Task(
   subagent_type="general-purpose",
   description="Grade Team XXX assignment",
-  prompt="""Grade Team XXX (FDS25-TXXX) assignment following the notebook-grading skill.
+  prompt="""Grade Team XXX assignment following the notebook-grading skill.
 
-**Configuration Files:**
+**FIRST: Load configuration from:**
 - Paths: notebook-grading/config/paths.yaml
 - Teams: notebook-grading/config/teams.yaml
 - Datasets: notebook-grading/config/datasets.yaml
 
-**Reference Files:**
+**Reference Files (load as needed):**
 - Error keys: notebook-grading/references/error_keys.md
 - Grading philosophy: notebook-grading/references/grading_philosophy.md
 - Task 1: notebook-grading/references/task1_label_encoding.md
@@ -66,17 +141,19 @@ Task(
 - Task 4 testing: notebook-grading/assets/task4_testing_template.md
 
 **Complete Workflow:**
-1. Find and read notebook(s) in: /Users/dp/Desktop/TA agent/data/students/FDS25-TXXX/
-2. Fix dataset paths (replace with /Users/dp/Desktop/TA agent/data/teacher/practical1/)
-3. Evaluate Task 1 (Label Encoding) - see task1_label_encoding.md
-4. Evaluate Task 2 (EDA and PCA) - see task2_eda_pca.md
-5. Evaluate Task 3 (Model Training - check for BOTH kNN and Logistic Regression) - see task3_model_training.md
-6. Evaluate Task 4 (Optional - if attempted, run full test with df_test.pkl) - see task4_optional_testing.md
-7. Update /Users/dp/Desktop/TA agent/data/teacher/practical1/grading_files/FDS25-TXXX.yaml
-8. Append F1 score to /Users/dp/Desktop/TA agent/data/teacher/practical1/f1.txt
+1. Read config/paths.yaml to get all file paths
+2. Read config/teams.yaml to verify team XXX is in the list
+3. Find and read notebook(s) in team's folder (path from config)
+4. Fix dataset paths (using dataset location from config)
+5. Evaluate Task 1 (Label Encoding) - see task1_label_encoding.md
+6. Evaluate Task 2 (EDA and PCA) - see task2_eda_pca.md
+7. Evaluate Task 3 (Model Training - check for BOTH kNN and Logistic Regression) - see task3_model_training.md
+8. Evaluate Task 4 (Optional - if attempted, run full test with df_test.pkl) - see task4_optional_testing.md
+9. Update YAML file (path from config)
+10. Append F1 score to f1.txt (path from config)
 
 **Return Summary:**
-- Team: FDS25-TXXX
+- Team: XXX
 - Task 1: [key]
 - Task 2: [key]
 - Task 3: [key]
@@ -89,15 +166,12 @@ Task(
 
 ## Quick Reference
 
-### File Paths (see `config/paths.yaml` for complete list)
-- **Student submissions:** `/Users/dp/Desktop/TA agent/data/students/FDS-25-Txxx`
-- **Datasets:** `/Users/dp/Desktop/TA agent/data/teacher/practical1`
-- **Test data:** `/Users/dp/Desktop/TA agent/data/teacher/practical1/df_test.pkl`
-- **Grading output:** `/Users/dp/Desktop/TA agent/data/teacher/practical1/grading_files/FDS-25-Txxx.yaml`
-- **F1 scores:** `/Users/dp/Desktop/TA agent/data/teacher/practical1/f1.txt`
+**All paths and team information are configured in:**
+- `config/paths.yaml` - File paths for submissions, datasets, outputs
+- `config/teams.yaml` - List of teams to grade
+- `config/datasets.yaml` - Dataset locations and metadata
 
-### Teams to Grade (see `config/teams.yaml` for complete list)
-004, 011, 018, 025, 032, 039, 046, 053, 060, 067, 074, 081, 088, 095, 102, 109, 116, 130
+**Load these configuration files at runtime to get specific paths and team lists.**
 
 ## Core Grading Principles
 
@@ -124,10 +198,11 @@ See `references/grading_philosophy.md` for detailed examples.
 
 ### Step 0: Fix Dataset Paths (REQUIRED FIRST STEP)
 **CRITICAL: Before running any student code:**
-1. Search for dataset loading statements in student notebooks
-2. Replace their paths with: `/Users/dp/Desktop/TA agent/data/teacher/practical1/[dataset_filename]`
-3. Match dataset filenames exactly (case-sensitive)
-4. **DO NOT modify any other code**
+1. Load dataset location from `config/datasets.yaml`
+2. Search for dataset loading statements in student notebooks
+3. Replace their paths with the configured dataset directory + filename
+4. Match dataset filenames exactly (case-sensitive)
+5. **DO NOT modify any other code**
 
 ### Step 1: Evaluate Each Task
 For each task (1-4):
@@ -145,7 +220,7 @@ For each task (1-4):
 - Task 4: See `references/task4_optional_testing.md`
 
 ### Step 2: Record Results
-Update the corresponding `FDS-25-Txxx.yaml` file with:
+Update the team's YAML grading file (path from `config/paths.yaml`):
 - One entry per task
 - Appropriate key from `references/error_keys.md`
 - Optional comment for clarification (REQUIRED for Task 4 if attempted)
@@ -153,9 +228,9 @@ Update the corresponding `FDS-25-Txxx.yaml` file with:
 See `references/yaml_format.md` for format specifications.
 
 ### Step 3: Record F1 Score
-Append to `/Users/dp/Desktop/TA agent/data/teacher/practical1/f1.txt`:
-- Format: `FDS25-Txxx: 0.XXXX` (if Task 4 attempted)
-- Format: `FDS25-Txxx: N/A (Task 4 not attempted)` (if not attempted)
+Append to F1 scores file (path from `config/paths.yaml`):
+- Format: `[TEAM_ID]: 0.XXXX` (if Task 4 attempted)
+- Format: `[TEAM_ID]: N/A (Task 4 not attempted)` (if not attempted)
 
 ## Special Considerations
 
@@ -168,12 +243,12 @@ If only one is present or wrong algorithm used → use key `3_Only_one_Classifie
 
 ### Task 4: Optional Advanced Task
 If attempted, you MUST:
-1. Load test dataset: `/Users/dp/Desktop/TA agent/data/teacher/practical1/df_test.pkl`
+1. Load test dataset (path from `config/datasets.yaml`)
 2. Replicate student's ENTIRE preprocessing pipeline on test data
 3. Apply fitted transformers (do NOT refit)
 4. Generate predictions using student's trained model
 5. Calculate F1 score on test predictions
-6. Create testing record: `GRADING_TASK4_TEST_RECORD.md`
+6. Create testing record: `GRADING_TASK4_TEST_RECORD.md` in student's folder
 7. Record F1 score in YAML comment
 
 See `references/task4_optional_testing.md` for complete testing procedure.

@@ -1,0 +1,36 @@
+# File Paths Configuration Template
+# This is a template - replace placeholders with actual paths for your environment
+# Run `python scripts/init_config.py` for interactive setup
+
+reference_solution:
+  path: "PLACEHOLDER_PATH_TO_REFERENCE_SOLUTION"
+  description: "Correct reference implementation for grader's understanding"
+
+student_submissions:
+  base_directory: "PLACEHOLDER_STUDENT_SUBMISSIONS_DIRECTORY"
+  folder_pattern: "PLACEHOLDER_FOLDER_PATTERN"  # e.g., "FDS-25-Txxx" where xxx is team number
+  description: "Student submission folders, each may contain 1-2 .ipynb files"
+
+datasets:
+  location: "PLACEHOLDER_DATASETS_DIRECTORY"
+  test_dataset: "PLACEHOLDER_TEST_DATASET_PATH"  # e.g., "/path/to/df_test.pkl"
+  description: "All required datasets for training and testing"
+
+grading_outputs:
+  yaml_files_directory: "PLACEHOLDER_GRADING_OUTPUT_DIRECTORY"
+  yaml_filename_pattern: "PLACEHOLDER_YAML_PATTERN"  # e.g., "FDS-25-Txxx.yaml"
+  f1_scores_file: "PLACEHOLDER_F1_SCORES_FILE"  # e.g., "/path/to/f1.txt"
+  description: "Grading results and F1 score records"
+
+# Path replacement patterns for student notebooks
+path_replacements:
+  target_directory: "PLACEHOLDER_DATASETS_DIRECTORY"
+  common_patterns:
+    - "../data/"
+    - "./data/"
+    - "data/"
+    - "/home/student/"
+  note: "Replace all dataset loading paths with absolute paths to ensure notebooks execute correctly"
+
+# Configuration status
+configured: false  # Set to true after completing configuration
