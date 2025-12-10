@@ -1,0 +1,19 @@
+# Grading Template
+# Fill in the appropriate error key for each task
+# See references/error_keys.md for available keys
+
+Task 1:
+    - key: [error_key_here]
+      comment: [optional explanation]
+
+Task 2:
+    - key: [error_key_here]
+      comment: [optional explanation]
+
+Task 3:
+    - key: [error_key_here]
+      comment: [optional explanation]
+
+Task 4:
+    - key: [error_key_here]
+      comment: [optional explanation - REQUIRED if Task 4 attempted, must include F1 score]
