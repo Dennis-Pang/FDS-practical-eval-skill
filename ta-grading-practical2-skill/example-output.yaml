@@ -1,0 +1,49 @@
+# Example Grading Output for FDS25-T004
+# This file shows what a complete grading result looks like
+
+General:
+    - key: 2_general_ok
+
+ContFeatureParam_estimate:
+    - key: 2_ContFeatureParam_estimate_ok
+
+ContFeatureParam_get_log_probability:
+    - key: 2_ContFeatureParam_get_log_probability_ok
+
+BinFeatureParam_estimate:
+    - key: 2_BinFeatureParam_estimate_incorrect_additive_smoothing
+      comment: Used ALPHA=1.0 instead of required ALPHA=0.0001
+
+BinFeatureParam_get_log_probability:
+    - key: 2_BinFeatureParam_get_log_probability_ok
+
+CatFeatureParam_estimate:
+    - key: 2_CatFeatureParam_estimate_ok
+
+CatFeatureParam_get_log_probability:
+    - key: 2_CatFeatureParam_get_log_probability_ok
+
+FeatureParam_test:
+    - key: 2_FeatureParam_test_binary_incorrect_due_to_previous_mistake
+
+NBC_fit:
+    - key: 2_NBC_fit_ok
+
+NBC_predict:
+    - key: 2_NBC_predict_ok
+
+NBC_test:
+    - key: 2_NBC_test_ok
+
+compareNBCvsLR:
+    - key: 2_compareNBCvsLR_ok
+
+experiment_iris:
+    - key: 2_experiment_iris_ok
+
+experiment_voting:
+    - key: 2_experiment_voting_incorrect_missing_data_handle
+      comment: Did not drop NA values before encoding, causing errors in NBC fit
+
+experiment_cancer:
+    - key: 2_experiment_cancer_ok
