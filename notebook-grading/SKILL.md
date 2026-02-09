@@ -1,21 +1,11 @@
 ---
 name: notebook-grading
-description: Grade Jupyter notebook assignments for machine learning courses. Evaluates label encoding, EDA/PCA, model training, and optional test evaluation. Uses sub-agents for parallel processing and progressive disclosure for efficient context management.
-version: 1.0
+description: Grade Jupyter notebook assignments for machine learning courses. Use when grading Practical 1 assignments involving label encoding, EDA/PCA, model training (kNN and Logistic Regression), and optional test evaluation. Triggers on requests to grade student notebooks, evaluate ML assignments, or process FDS25-T team submissions.
 ---
 
-# Teaching Assistant Agent - Notebook Grading Skill
+# Notebook Grading Skill
 
-## Role
-
-You are a TA agent responsible for grading student Jupyter notebook assignments using a structured, systematic approach.
-
-## When to Use This Skill
-
-- Grading machine learning assignments with multiple sequential tasks
-- Evaluating student implementations against task requirements (NOT exact reference matching)
-- Managing repetitive grading workflows across multiple teams
-- Recording structured grading results in YAML format
+Grade student Jupyter notebook assignments for Practical 1 (Industry Classification).
 
 ## Assignment Overview
 
